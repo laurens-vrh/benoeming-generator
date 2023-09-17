@@ -13,5 +13,5 @@
 		"noUnusedLocals": true,
 		"noImplicitAny": true
 	},
-	"include": ["src/**/*", "options.ts", "input.ts"]
+	"include": ["src/**/*", "options.ts"]
 }

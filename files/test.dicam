@@ -1,0 +1,14 @@
+DICAM FILE
+v1.0.0
+- Epistulae morales ad Lucilium
+- Brief 47: Adel van de geest
+
+(zin:H1)
+Iterum      {_bw}
+tu          <nw:nom>{ev/m}
+mihi        <nw:dat>{ev/m}
+te          <nw:acc>{ev/m}
+pusillium   <nw:nom_>{ev/m_dvb}
+facis       <ww>{ind pr/2e ev A_2}
+(zin:|H2)
+et  dicis.

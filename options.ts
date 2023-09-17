@@ -10,6 +10,7 @@ export const options = {
 	linePadding: 75,
 	highlightPadding: 2,
 
+	theme: "pastel" as "default" | "pastel",
 	themes: {
 		default: {
 			text: "black",

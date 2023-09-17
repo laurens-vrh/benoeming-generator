@@ -1,38 +1,21 @@
-import { createCanvas } from "canvas";
-import { input } from "../input.js";
 import fs from "node:fs";
-import { options } from "../options.js";
-import { mark } from "./markings.js";
-import { drawText, splitText } from "./text.js";
+import { Parser } from "./Parser.js";
+import { Generator } from "./Generator.js";
 
-const canvas = createCanvas(options.width, 1, "pdf");
-const ctx = canvas.getContext("2d");
+const files = fs
+	.readdirSync("./files/")
+	.filter((fileName) => fileName.endsWith(".dicam"));
 
-ctx.font = `${options.fontSize}px ${options.font}`;
-const textLines = splitText(ctx, input.text);
+files.forEach(async (fileName) => {
+	const file = fs.readFileSync("./files/" + fileName).toString();
 
-canvas.height =
-	options.linePadding +
-	(options.fontSize + options.linePadding) * textLines.length;
+	const parser = new Parser(fileName, file);
+	const { text, markings } = parser.parse();
 
-// marker
-mark(
-	ctx,
-	textLines,
-	input.markings.filter((marking) => marking.type === "naamwoord")
-);
+	const generator = new Generator(text, markings);
+	const image = generator.generate();
 
-// text
-drawText(ctx, textLines);
-
-// andere markings
-mark(
-	ctx,
-	textLines,
-	input.markings.filter((marking) => marking.type !== "naamwoord")
-);
-
-// save
-const buffer = canvas.toBuffer("application/pdf");
-fs.writeFileSync("marked-text.pdf", buffer);
-console.log("Image saved as marked-text.pdf");
+	const buffer = image.toBuffer("application/pdf");
+	fs.writeFileSync("./files/" + fileName.replace(".dicam", ".pdf"), buffer);
+	console.log(`- converted ${fileName}`);
+});
