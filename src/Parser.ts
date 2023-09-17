@@ -19,6 +19,7 @@ export class Parser {
 		this.parseHeader();
 		this.text = text
 			.join("\n\n")
+			.replaceAll(/\n- .+/g, "")
 			.replaceAll(/ *(?=<|{)/g, "")
 			.replaceAll(/\n(?=.)/g, "  ");
 		this.words = this.text.split("  ");
@@ -26,8 +27,8 @@ export class Parser {
 		this.advance();
 	}
 
-	advance(increment = true) {
-		if (increment) this.textPosition++;
+	advance(number = 1, increment = true) {
+		if (increment) this.textPosition += number;
 		this.position++;
 		this.currentWord = this.words[this.position];
 	}
@@ -53,7 +54,7 @@ export class Parser {
 
 		while (this.currentWord) {
 			const result =
-				/(\(.+?:.+?\))|(([^<{]+)(<(.+?)(:(.+))?>)?({([^_]+?)?(_(.+))?})?)/.exec(
+				/(\((.+?)(:(.+?))?\))|(([^<{]+)(<(.+?)(:(.+))?>)?(\[([+-]?[0-9]+?)\])?({([^_]+?)?(_(.+))?})?)/.exec(
 					this.currentWord
 				);
 			if (!result)
@@ -62,18 +63,24 @@ export class Parser {
 				);
 
 			const parts = {
-				zin: result[1],
-				cleanWord: result[3],
-				type: result[5],
-				value: result[7],
-				topNote: result[9],
-				bottomNote: result[11],
+				annotationType: result[2],
+				annotationValue: result[4],
+
+				cleanWord: result[6],
+				type: result[8],
+				value: result[10],
+				offset: result[12],
+				topNote: result[14],
+				bottomNote: result[16],
 			};
 
-			if (!parts.zin)
-				cleanText += (cleanText === "" ? "" : " ") + parts.cleanWord;
-
-			if (!parts.zin && !parts.type && !parts.topNote && !parts.bottomNote) {
+			if (parts.cleanWord) cleanText += parts.cleanWord + " ";
+			if (
+				!parts.annotationType &&
+				!parts.type &&
+				!parts.topNote &&
+				!parts.bottomNote
+			) {
 				this.advance();
 				continue;
 			}
@@ -81,41 +88,52 @@ export class Parser {
 			const words = parts.cleanWord?.split(" ");
 			const marking: any = {
 				start: this.textPosition,
-				end: words?.length > 1 ? this.position + words.length - 1 : undefined,
+				end:
+					words?.length > 1 ? this.textPosition + words.length - 1 : undefined,
 				type: parts.type,
 				topNote: parts.topNote?.split("/"),
 				bottomNote: parts.bottomNote?.split("/"),
 			};
 
-			if (parts.zin) {
-				marking.type = "zin";
-				var zin = parts.zin.split(":")[1];
+			if (parts.offset) marking.to = this.textPosition + parseInt(parts.offset);
 
-				if (zin.startsWith("||")) {
+			if (parts.annotationType === "zin") {
+				marking.type = "zin";
+
+				if (parts.annotationValue.startsWith("||")) {
 					marking.streep = "dubbel";
-					zin = zin.slice(2);
-				} else if (zin.startsWith("|")) {
+					parts.annotationValue = parts.annotationValue.slice(2);
+				} else if (parts.annotationValue.startsWith("|")) {
 					marking.streep = "enkel";
-					zin = zin.slice(1);
+					parts.annotationValue = parts.annotationValue.slice(1);
 				}
 
-				marking.zin = zin[0];
-				marking.nummer = parseInt(zin.slice(1));
-				markings.push(marking);
-				this.advance(false);
-				continue;
-			}
+				marking.zin = parts.annotationValue[0];
+				const nummer = parseInt(parts.annotationValue.slice(1));
+				marking.nummer = isNaN(nummer) ? undefined : nummer;
+			} else if (parts.annotationType === "c") {
+				marking.type = "constructie";
 
-			if (parts.type === "nw") {
-				marking.naamval = parts.value.slice(0, 3);
-				marking.hoofdfunctie = !parts.value.endsWith("_");
+				if (parts.annotationValue.endsWith(".")) {
+					marking.close = true;
+					parts.annotationValue = parts.annotationValue.slice(0, -1);
+				}
+				marking.constructie = parts.annotationValue;
+			} else if (parts.type === "nw" || parts.type === "ovw") {
+				if (parts.value?.endsWith(".")) {
+					marking.participium = true;
+					parts.value = parts.value?.slice(0, -1);
+				}
+				marking.naamval = parts.value?.slice(0, 3);
+				marking.hoofdfunctie = !parts.value?.endsWith("_");
 			} else if (parts.type === "ww") {
 				marking.persoonsvorm = !parts.value || parts.value === "pv";
 			}
 
 			markings.push(marking);
-			this.advance();
-			continue;
+			if (words) {
+				this.advance(words.length, true);
+			} else this.advance(1, false);
 		}
 
 		return { text: cleanText, markings };

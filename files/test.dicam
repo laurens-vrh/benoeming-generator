@@ -1,14 +1,71 @@
 DICAM FILE
 v1.0.0
 - Epistulae morales ad Lucilium
-- Brief 47: Adel van de geest
+- Brief 44: Adel van de geest
 
-(zin:H1)
+Seneca      <nw:nom>{ev/m}
+Lucilio suo <nw:dat>{ev/m}
+salutem.     <nw:acc>{ev/m}
+
+- Afkomst telt niet
+(zin:||H1)
 Iterum      {_bw}
 tu          <nw:nom>{ev/m}
 mihi        <nw:dat>{ev/m}
 te          <nw:acc>{ev/m}
-pusillium   <nw:nom_>{ev/m_dvb}
+pusillium   <nw:nom_.>{ev/m_dvb}
 facis       <ww>{ind pr/2e ev A_2}
 (zin:|H2)
-et  dicis.
+et
+dicis       <ww>{ind pr/2e ev A_3}
+(c:aci)
+malignus    {C_bw}
+te          <nw:abl_>[+1]{ev/m}
+cum
+egisse      <ww:inf>{I/inf pf A}
+naturam     <nw:acc_>{A/ev/v_ow}
+prius,      {C_bw}
+deinde      {_bw}
+fortunam,   <nw:acc_>{A/ev/v_ow}
+(c:aci.)
+(zin:|B)
+cum         <ovw>
+possis      <ww>{coni pr/2e ev A_cum}
+eximere     <ww:inf>[-1]{inf pr A}
+te          <nw:acc>{ev/m}
+vulgo       <nw:abl>{ev/m_sep.}
+et
+ad
+felicitatem <nw:acc_>[-1]{ev/v}
+hominum     <nw:gen>[+1]{mv/m}
+maximam     <nw:acc_>{S}
+emergere.   <ww:inf>[-9]{inf pr A}
+
+(zin:||B1)
+Si          <ovw>
+quid        <nw:nom>{ev/o}
+est         <ww>{ind pr/3e ev A}
+aliud       <nw:nom>
+in
+philosophia <nw:abl_>[-1]{ev/v}
+boni,       <nw:gen>[-1]{mv/m_part.}
+(zin:|H1)
+hoc         <nw:nom_>{ev/o_nw.d.}
+est,        <ww>{ind pr/3e ev A}
+(zin:|B2)
+quod        <ovw:acc>
+stemma      <nw:acc>{ev/o}
+non         {_bw}
+inspicit;   <ww>{ind pr/3e ev A}
+(zin:|H2)
+omnes,      <nw:nom>{mv/m}
+(zin:|B3)
+si          <ovw>
+ad
+originem primam <nw:acc_>[-1]{ev/v}
+revocantur, <ww>{ind pr/3e mv P}
+(zin:|H2)
+a
+dis         <nw:abl_>[-1]{mv/m}
+sunt.       <ww>{ind pr/3e mv A}
+(zin:||)

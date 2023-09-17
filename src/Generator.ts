@@ -6,11 +6,13 @@ export type Marking = {
 	end?: number;
 	topNote?: string[];
 	bottomNote?: string[];
+	to?: number;
 } & (
 	| {
-			type: "nw";
+			type: "nw" | "ovw";
 			naamval: "nom" | "gen" | "dat" | "acc" | "abl" | "voc";
 			hoofdfunctie: boolean;
+			participium: boolean;
 	  }
 	| {
 			type: "ww";
@@ -21,6 +23,11 @@ export type Marking = {
 			zin: "H" | "B";
 			nummer?: number;
 			streep?: "enkel" | "dubbel";
+	  }
+	| {
+			type: "constructie";
+			constructie: "aci" | "ablabs";
+			close: boolean;
 	  }
 );
 
@@ -47,6 +54,9 @@ export class Generator {
 		this.markings = markings;
 
 		this.context.font = `${options.fontSize}px ${options.font}`;
+		this.context.lineCap = "round";
+		this.context.lineJoin = "round";
+		this.context.lineWidth = 2;
 		this.lines = this.splitText();
 		this.canvas.height =
 			options.linePadding +
@@ -54,9 +64,9 @@ export class Generator {
 	}
 
 	generate() {
-		this.mark(this.markings.filter((marking) => marking.type === "nw"));
+		this.mark(this.markings.filter((marking) => marking.type !== "zin"));
+		this.mark(this.markings.filter((marking) => marking.type === "zin"));
 		this.drawText();
-		this.mark(this.markings.filter((marking) => marking.type !== "nw"));
 
 		return this.canvas;
 	}
@@ -79,10 +89,70 @@ export class Generator {
 	mark(markings: Marking[]) {
 		markings.forEach((marking) => {
 			const position = this.findPosition(marking.start, marking.end);
-
-			this.context.beginPath();
 			this.context.font = `${options.noteFontSize}px ${options.noteFont}`;
 
+			if (marking.to) {
+				const toPosition = this.findPosition(marking.to);
+
+				this.context.beginPath();
+				this.context.strokeStyle =
+					(marking.type === "nw" || marking.type === "ovw") &&
+					!marking.hoofdfunctie
+						? options.themes[options.theme][marking.naamval]
+						: options.themes[options.theme].benoeming;
+				this.context.setLineDash([]);
+
+				const startX = position.x + position.width / 2;
+				const startY = position.y + 2;
+				const endX = toPosition.x + toPosition.width / 2;
+				const endY = toPosition.y + 4;
+
+				if (position.line === toPosition.line) {
+					const controlX = (startX + endX) / 2;
+					const controlY = position.y + 20;
+
+					this.context.moveTo(startX, startY);
+					this.context.quadraticCurveTo(controlX, controlY, endX, endY);
+					this.context.stroke();
+				} else {
+					const lineBreakX1 =
+						position.line > toPosition.line
+							? options.padding
+							: options.width - options.padding;
+					const lineBreakY1 = position.y + 25;
+					const controlX1 =
+						position.line > toPosition.line ? startX - 20 : startX + 20;
+
+					this.context.moveTo(startX, startY);
+					this.context.quadraticCurveTo(
+						controlX1,
+						lineBreakY1,
+						lineBreakX1,
+						lineBreakY1
+					);
+					this.context.stroke();
+
+					const lineBreakX2 =
+						position.line > toPosition.line
+							? options.width - options.padding
+							: options.padding;
+					const lineBreakY2 = toPosition.y + 25;
+					const controlX2 =
+						position.line > toPosition.line ? endX + 20 : endX - 20;
+
+					this.context.beginPath();
+					this.context.moveTo(endX, endY);
+					this.context.quadraticCurveTo(
+						controlX2,
+						lineBreakY2,
+						lineBreakX2,
+						lineBreakY2
+					);
+					this.context.stroke();
+				}
+			}
+
+			this.context.beginPath();
 			if (marking.type === "zin") {
 				this.context.fillStyle = options.themes[options.theme].benoeming;
 
@@ -115,9 +185,43 @@ export class Generator {
 				}
 			}
 
-			if (marking.type === "nw") {
-				this.context.fillStyle = options.themes[options.theme][marking.naamval];
+			if (marking.type === "constructie") {
+				this.context.strokeStyle = options.themes[options.theme].benoeming;
 
+				this.context.beginPath();
+				this.context.setLineDash([]);
+
+				var startX = position.x;
+				if (marking.constructie === "ablabs") startX += marking.close ? -5 : 5;
+				var middleX = startX - 7;
+				if (marking.close) {
+					var temp = middleX;
+					middleX = startX;
+					startX = temp;
+				}
+
+				const startY = position.y + 5;
+				const endY = position.y + 5 - options.fontSize - 15;
+				const middleY = (startY + endY) / 2;
+
+				if (marking.constructie === "aci") {
+					this.context.moveTo(startX, startY);
+					this.context.quadraticCurveTo(middleX, middleY, startX, endY);
+					this.context.stroke();
+				} else if (marking.constructie === "ablabs") {
+					this.context.moveTo(startX, startY);
+					this.context.lineTo(middleX, startY);
+					this.context.lineTo(middleX, endY);
+					this.context.lineTo(startX, endY);
+					this.context.stroke();
+				}
+			}
+
+			if (
+				marking.type === "nw" ||
+				(marking.type === "ovw" && marking.naamval)
+			) {
+				this.context.fillStyle = options.themes[options.theme][marking.naamval];
 				if (marking.hoofdfunctie) {
 					this.context.roundRect(
 						position.x - options.highlightPadding,
@@ -130,20 +234,48 @@ export class Generator {
 				} else {
 					this.drawUnderline(position);
 				}
+
+				if (marking.participium) {
+					this.context.fillStyle = options.themes[options.theme].benoeming;
+					this.drawUnderline(position, true, 2);
+				}
 			}
 
 			if (marking.type === "ww") {
 				this.context.fillStyle = options.themes[options.theme].benoeming;
-				this.drawUnderline(position);
+				this.drawUnderline(position, !marking.persoonsvorm);
+			}
+
+			if (marking.type === "ovw") {
+				this.context.strokeStyle = options.themes[options.theme].benoeming;
+				this.context.setLineDash([]);
+				this.context.beginPath();
+				this.context.roundRect(
+					position.x,
+					position.y + 2,
+					position.width + 1,
+					-options.fontSize,
+					6
+				);
+				this.context.stroke();
 			}
 
 			this.drawNotes(position, marking);
 		});
 	}
 
-	drawUnderline(position: Position) {
-		this.context.roundRect(position.x, position.y, position.width, 2, 1);
-		this.context.fill();
+	drawUnderline(position: Position, dashed = false, offsetY = 0) {
+		this.context.beginPath();
+		this.context.strokeStyle = this.context.fillStyle;
+		this.context.lineCap = "round";
+		this.context.lineWidth = 2;
+
+		if (dashed) this.context.setLineDash([8, 6]);
+		else this.context.setLineDash([]);
+
+		this.context.moveTo(position.x, position.y + 1 + offsetY);
+		this.context.lineTo(position.x + position.width, position.y + 1 + offsetY);
+		this.context.stroke();
 	}
 
 	drawNotes(position: Position, marking: Marking) {
@@ -165,7 +297,7 @@ export class Generator {
 				this.context.fillText(
 					line,
 					position.x + position.width / 2,
-					position.y + 12 + options.noteFontSize * i
+					position.y + 13 + options.noteFontSize * i
 				);
 			});
 	}
@@ -190,33 +322,39 @@ export class Generator {
 		const lineWords = this.lines.map((line) =>
 			line.split(" ").filter((l) => l !== "")
 		);
+		lineWords[lineWords.length - 1].push("");
+
 		const { linePosition, wordPosition } = this.findPartialPosition(
 			lineWords,
 			start
 		);
 
+		const x =
+			options.padding +
+			(wordPosition === 0
+				? 0
+				: this.context.measureText(
+						lineWords[linePosition].slice(0, wordPosition).join(" ") + " "
+				  ).width);
+		const y = (options.fontSize + options.linePadding) * (linePosition + 1) + 1;
+		const width = this.context.measureText(
+			lineWords[linePosition]
+				.slice(
+					wordPosition,
+					(end
+						? this.findPartialPosition(lineWords, end).wordPosition
+						: wordPosition) + 1
+				)
+				.join(" ")
+				.replaceAll(".", "")
+		).width;
+
 		return {
 			line: linePosition,
 			word: wordPosition,
-			x:
-				options.padding +
-				(wordPosition === 0
-					? 0
-					: this.context.measureText(
-							lineWords[linePosition].slice(0, wordPosition).join(" ") + " "
-					  ).width),
-			y: (options.fontSize + options.linePadding) * (linePosition + 1) + 1,
-			width: this.context.measureText(
-				lineWords[linePosition]
-					.slice(
-						wordPosition,
-						(end
-							? this.findPartialPosition(lineWords, end).wordPosition
-							: wordPosition) + 1
-					)
-					.join(" ")
-					.replaceAll(".", "")
-			).width,
+			x,
+			y,
+			width,
 		};
 	}
 

@@ -19,3 +19,7 @@ files.forEach(async (fileName) => {
 	fs.writeFileSync("./files/" + fileName.replace(".dicam", ".pdf"), buffer);
 	console.log(`- converted ${fileName}`);
 });
+
+// TODO
+// - uitgang werkwoord
+// - verkort raar lange lijnen
