@@ -17,11 +17,12 @@ export class Parser {
 		const [header, ...text] = this.file.split("\n\n");
 		this.header = header;
 		this.parseHeader();
+
 		this.text = text
 			.join("\n\n")
-			.replaceAll(/\n- .+/g, "")
-			.replaceAll(/ *(?=<|{)/g, "")
-			.replaceAll(/\n(?=.)/g, "  ");
+			.replace(/\n- .+/g, "")
+			.replace(/ *(?=<|{)/g, "")
+			.replace(/\n(?=.)/g, "  ");
 		this.words = this.text.split("  ");
 
 		this.advance();
@@ -74,7 +75,10 @@ export class Parser {
 				bottomNote: result[16],
 			};
 
-			if (parts.cleanWord) cleanText += parts.cleanWord + " ";
+			if (parts.cleanWord)
+				cleanText +=
+					parts.cleanWord + (this.currentWord.endsWith("\n") ? "\n " : " ");
+
 			if (
 				!parts.annotationType &&
 				!parts.type &&
@@ -109,8 +113,8 @@ export class Parser {
 				}
 
 				marking.zin = parts.annotationValue[0];
-				const nummer = parseInt(parts.annotationValue.slice(1));
-				marking.nummer = isNaN(nummer) ? undefined : nummer;
+				const nummer = parts.annotationValue.slice(1);
+				if (nummer) marking.nummer = parseInt(nummer);
 			} else if (parts.annotationType === "c") {
 				marking.type = "constructie";
 
@@ -127,7 +131,8 @@ export class Parser {
 				marking.naamval = parts.value?.slice(0, 3);
 				marking.hoofdfunctie = !parts.value?.endsWith("_");
 			} else if (parts.type === "ww") {
-				marking.persoonsvorm = !parts.value || parts.value === "pv";
+				marking.persoonsvorm = !parts.value || parts.value === "ow";
+				marking.onderwerp = parts.value === "ow";
 			}
 
 			markings.push(marking);

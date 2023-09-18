@@ -1,5 +1,6 @@
 import { Canvas, CanvasRenderingContext2D, createCanvas } from "canvas";
 import { options } from "../options.js";
+import { Drawer } from "./Drawer.js";
 
 export type Marking = {
 	start: number;
@@ -17,6 +18,7 @@ export type Marking = {
 	| {
 			type: "ww";
 			persoonsvorm: boolean;
+			onderwerp: boolean;
 	  }
 	| {
 			type: "zin";
@@ -42,6 +44,7 @@ export interface Position {
 export class Generator {
 	canvas: Canvas;
 	context: CanvasRenderingContext2D;
+	drawer: Drawer;
 	text: string;
 	lines: string[];
 	markings: Marking[];
@@ -61,12 +64,14 @@ export class Generator {
 		this.canvas.height =
 			options.linePadding +
 			(options.fontSize + options.linePadding) * this.lines.length;
+
+		this.drawer = new Drawer(this, this.context);
 	}
 
 	generate() {
 		this.mark(this.markings.filter((marking) => marking.type !== "zin"));
 		this.mark(this.markings.filter((marking) => marking.type === "zin"));
-		this.drawText();
+		this.drawer.drawText(this.lines);
 
 		return this.canvas;
 	}
@@ -78,9 +83,12 @@ export class Generator {
 			const newWidth = this.context.measureText(
 				lines[lines.length - 1] + word
 			).width;
+
 			if (newWidth <= options.width - options.padding * 2)
 				lines[lines.length - 1] += word + " ";
 			else lines.push(word + " ");
+
+			if (word.endsWith("\n")) lines.push("");
 		});
 
 		return lines;
@@ -232,18 +240,31 @@ export class Generator {
 					);
 					this.context.fill();
 				} else {
-					this.drawUnderline(position);
+					this.drawer.drawUnderline(marking);
 				}
 
 				if (marking.participium) {
 					this.context.fillStyle = options.themes[options.theme].benoeming;
-					this.drawUnderline(position, true, 2);
+					this.drawer.drawUnderline(marking, true, 2);
 				}
 			}
 
 			if (marking.type === "ww") {
+				if (marking.onderwerp) {
+					this.context.fillStyle = options.themes[options.theme].nom;
+					const markWidth = Math.max(position.width * 0.3, 13);
+					this.context.roundRect(
+						position.x + position.width - markWidth - options.highlightPadding,
+						position.y + 2,
+						markWidth + options.highlightPadding * 2,
+						-options.fontSize,
+						2
+					);
+					this.context.fill();
+				}
+
 				this.context.fillStyle = options.themes[options.theme].benoeming;
-				this.drawUnderline(position, !marking.persoonsvorm);
+				this.drawer.drawUnderline(marking, !marking.persoonsvorm);
 			}
 
 			if (marking.type === "ovw") {
@@ -260,60 +281,8 @@ export class Generator {
 				this.context.stroke();
 			}
 
-			this.drawNotes(position, marking);
+			this.drawer.drawNotes(position, marking);
 		});
-	}
-
-	drawUnderline(position: Position, dashed = false, offsetY = 0) {
-		this.context.beginPath();
-		this.context.strokeStyle = this.context.fillStyle;
-		this.context.lineCap = "round";
-		this.context.lineWidth = 2;
-
-		if (dashed) this.context.setLineDash([8, 6]);
-		else this.context.setLineDash([]);
-
-		this.context.moveTo(position.x, position.y + 1 + offsetY);
-		this.context.lineTo(position.x + position.width, position.y + 1 + offsetY);
-		this.context.stroke();
-	}
-
-	drawNotes(position: Position, marking: Marking) {
-		this.context.font = `${options.noteFontSize}px ${options.noteFont}`;
-		this.context.textAlign = "center";
-		this.context.fillStyle = options.themes[options.theme].benoeming;
-
-		if (marking.topNote)
-			marking.topNote.reverse().forEach((line, i) => {
-				this.context.fillText(
-					line,
-					position.x + position.width / 2,
-					position.y - options.fontSize - options.noteFontSize * i
-				);
-			});
-
-		if (marking.bottomNote)
-			marking.bottomNote.forEach((line, i) => {
-				this.context.fillText(
-					line,
-					position.x + position.width / 2,
-					position.y + 13 + options.noteFontSize * i
-				);
-			});
-	}
-
-	drawText() {
-		this.context.textAlign = "left";
-		this.context.font = `${options.fontSize}px ${options.font}`;
-		this.context.fillStyle = options.themes[options.theme].text;
-
-		this.lines.forEach((line, i) =>
-			this.context.fillText(
-				line,
-				options.padding,
-				(options.fontSize + options.linePadding) * (i + 1)
-			)
-		);
 	}
 
 	findPosition(start: number, end?: number): Position {
@@ -346,7 +315,7 @@ export class Generator {
 						: wordPosition) + 1
 				)
 				.join(" ")
-				.replaceAll(".", "")
+				.replace(/[.;,]/g, "")
 		).width;
 
 		return {

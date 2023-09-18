@@ -1,5 +1,5 @@
 export const options = {
-	width: 500,
+	width: 700,
 
 	font: "Times New Roman",
 	fontSize: 20,
@@ -10,12 +10,12 @@ export const options = {
 	linePadding: 75,
 	highlightPadding: 2,
 
-	theme: "pastel" as "default" | "pastel",
+	theme: "default" as "default" | "pastel",
 	themes: {
 		default: {
 			text: "black",
 			benoeming: "#750000",
-			nom: "#0044ff",
+			nom: "#00ccff",
 			gen: "#ff6600",
 			dat: "#e5ff00",
 			acc: "#26ff00",
@@ -25,7 +25,7 @@ export const options = {
 		pastel: {
 			text: "black",
 			benoeming: "#750000",
-			nom: "#63d5ff",
+			nom: "#8adfff",
 			gen: "#ff9763",
 			dat: "#fffc63",
 			acc: "#9cff63",

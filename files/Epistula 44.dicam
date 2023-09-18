@@ -1,0 +1,126 @@
+DICAM FILE
+v1.0.0
+- Epistulae morales ad Lucilium
+- Brief 44: Adel van de geest
+
+Seneca      <nw:nom>{ev/m}
+Lucilio suo <nw:dat>{ev/m}
+salutem.     <nw:acc>{ev/m}
+
+- Afkomst telt niet
+(zin:||H1)
+Iterum      {_bw}
+tu          <nw:nom>{ev/m}
+mihi        <nw:dat>{ev/m}
+te          <nw:acc>{ev/m}
+pusillium   <nw:nom_.>{ev/m_dvb}
+facis       <ww>{ind pr/2e ev A_2}
+(zin:|H2)
+et
+dicis       <ww:ow>{ind pr/2e ev A_3}
+(c:aci)
+malignus    {C_bw}
+te          <nw:abl_>[+1]{ev/m}
+cum
+egisse      <ww:inf>{I/inf pf A}
+naturam     <nw:acc_>{A/ev/v_ow}
+prius,      {C_bw}
+deinde      {_bw}
+fortunam,   <nw:acc_>{A/ev/v_ow}
+(c:aci.)
+(zin:|B)
+cum         <ovw>
+possis      <ww:ow>{coni pr/2e ev A_cum}
+eximere     <ww:inf>[-1]{inf pr A}
+te          <nw:acc>{ev/m}
+vulgo       <nw:abl>{ev/m_sep.}
+et
+ad
+felicitatem <nw:acc_>[-1]{ev/v}
+hominum     <nw:gen>[+1]{mv/m}
+maximam     <nw:acc_>{S}
+emergere.   <ww:inf>[-9]{inf pr A}
+(zin:||B1)
+Si          <ovw>
+quid        <nw:nom>{ev/o}
+est         <ww>{ind pr/3e ev A}
+aliud       <nw:nom>
+in
+philosophia <nw:abl_>[-1]{ev/v}
+boni,       <nw:gen>[-1]{mv/m_part.}
+(zin:|H1)
+hoc         <nw:nom_>{ev/o_nw.d.}
+est,        <ww:ow>{ind pr/3e ev A}
+(zin:|B2)
+quod        <ovw:acc>
+stemma      <nw:acc>{ev/o}
+non         {_bw}
+inspicit;   <ww:ow>{ind pr/3e ev A}
+(zin:|H2)
+omnes,      <nw:nom>{mv/m}
+(zin:|B3)
+si          <ovw>
+ad
+originem primam <nw:acc_>[-1]{ev/v}
+revocantur, <ww:ow>{ind pr/3e mv P}
+(zin:|H2)
+a
+dis         <nw:abl_>[-1]{mv/m}
+sunt.       <ww>{ind pr/3e mv A}
+(zin:||H1)
+Eques Romanus   <nw:nom_>{ev/m_nw.d.}
+es,         <ww:ow>{ind pr/2e ev A}
+(zin|H2)
+et
+ad
+hunc ordinem<nw:acc_>[-1]{ev/m}
+tua         <nw:abl>{ev/v}
+te          <nw:acc>{ev/m}
+perduxit    <ww>{ind pf/3e ev A}
+industria;  <nw:nom>
+(zin:|H3)
+at
+mehercules
+multis      <nw:dat_>{mv/m_incommodi}
+quattuordecim   <nw:nom>{mv/o}
+clausa sunt,<ww>{ind pr/3e mv A}
+(zin:|H4)
+non
+omnes       <nw:acc>{mv/m}
+curia       <nw:nom>{ev/o}
+admittit,   <ww>{ind pr/3e ev A}
+(zin:|H5)
+castra      <nw:nom>{mv/o}
+quoque,     {_bw}
+(zin:|B1)
+quos        <ovw:acc_>{mv/m}
+ad
+laborem     <nw:acc_>[-1]
+et
+periculum   <nw:acc_>
+recipiant,  <ww:ow>{coni pr/3e mv A_definitie}
+(zin:|H5)
+fastidiose  {_bw}
+legunt:     <ww:ow>{ind pr/3e mv A}
+(zin:|H6)
+bona mens   <nw:nom>{ev/v}
+omnibus     <nw:dat_>{mv/m_commodi}
+patet,      <ww>{ind pr/3e ev A}
+(zin:|H7)
+omnes       <nw:nom>{mv/m}
+ad
+hoc         <nw:acc_>[-1]{ev/o}
+sumus       <ww>{ind pr/1e mv A}
+nobiles.    <nw:nom_>{mv/m_nw.d.}
+(zin:||H1)
+Nec
+reicit      <ww>{ind pr/3e ev A}
+quemquam    <nw:acc>{ev/o}
+philosophia <nw:nom>{ev/v}
+(zin:|H2)
+nec
+eligit:     <ww:ow>{ind pr/3e ev A}
+(zin:|H3)
+omnibus     <nw:dat_>{mv/m_commodi}
+lucet.      <ww:ow>{ind pr/3e ev A}
+(zin:||)
