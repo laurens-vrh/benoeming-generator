@@ -1,12 +1,14 @@
 {
-	"name": "benoeming-generator",
+	"name": "dicam-generator",
+	"version": "1.0.2",
+	"author": "laurens.vrh",
 	"main": "dist/src/index.js",
 	"type": "module",
 	"scripts": {
 		"start": "node .",
 		"build": "tsc",
 		"build:watch": "tsc --watch",
-		"dev": "nodemon -e js,json,dicam ."
+		"dev": "nodemon -e js,json,dicam ./dist/src/test.js"
 	},
 	"dependencies": {
 		"canvas": "^2.11.2"

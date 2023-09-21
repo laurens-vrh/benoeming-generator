@@ -1,4 +1,31 @@
-export const options = {
+export interface Options {
+	width: number;
+	padding: number;
+	linePadding: number;
+	highlightPadding: 2;
+
+	font: string;
+	fontSize: number;
+	noteFont: string;
+	noteFontSize: number;
+
+	theme: string;
+	themes: {
+		[key: string]: {
+			background: string;
+			text: string;
+			benoeming: string;
+			nom: string;
+			gen: string;
+			dat: string;
+			acc: string;
+			abl: string;
+			voc: string;
+		};
+	};
+}
+
+export const defaultOptions: Options = {
 	width: 700,
 
 	font: "Times New Roman",
@@ -13,6 +40,7 @@ export const options = {
 	theme: "default" as "default" | "pastel",
 	themes: {
 		default: {
+			background: "#ffffff",
 			text: "black",
 			benoeming: "#750000",
 			nom: "#00ccff",
@@ -23,6 +51,7 @@ export const options = {
 			voc: "#8400ff",
 		},
 		pastel: {
+			background: "#ffffff",
 			text: "black",
 			benoeming: "#750000",
 			nom: "#8adfff",

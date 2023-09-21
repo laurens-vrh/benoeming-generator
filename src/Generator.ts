@@ -1,5 +1,5 @@
 import { Canvas, CanvasRenderingContext2D, createCanvas } from "canvas";
-import { options } from "../options.js";
+import { Options, defaultOptions } from "../options.js";
 import { Drawer } from "./Drawer.js";
 
 export type Marking = {
@@ -42,28 +42,38 @@ export interface Position {
 }
 
 export class Generator {
-	canvas: Canvas;
+	options: Options;
+	canvas: Canvas | HTMLCanvasElement;
 	context: CanvasRenderingContext2D;
 	drawer: Drawer;
 	text: string;
 	lines: string[];
 	markings: Marking[];
 
-	constructor(text: string, markings: Marking[]) {
-		this.canvas = createCanvas(options.width, 1, "pdf");
-		this.context = this.canvas.getContext("2d");
+	constructor(
+		text: string,
+		markings: Marking[],
+		options?: Partial<Options>,
+		canvas?: Canvas | HTMLCanvasElement
+	) {
+		this.options = { ...defaultOptions, ...options };
+		this.canvas = canvas ?? createCanvas(this.options.width, 1, "pdf");
+		this.canvas.width = this.options.width;
+		this.context = this.canvas.getContext("2d") as CanvasRenderingContext2D;
 
 		this.text = text;
 		this.markings = markings;
 
-		this.context.font = `${options.fontSize}px ${options.font}`;
+		this.context.font = `${this.options.fontSize}px ${this.options.font}`;
 		this.context.lineCap = "round";
 		this.context.lineJoin = "round";
 		this.context.lineWidth = 2;
 		this.lines = this.splitText();
 		this.canvas.height =
-			options.linePadding +
-			(options.fontSize + options.linePadding) * this.lines.length;
+			this.options.linePadding +
+			(this.options.fontSize + this.options.linePadding) * this.lines.length;
+		this.context.fillStyle = this.options.themes[this.options.theme].background;
+		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
 		this.drawer = new Drawer(this, this.context);
 	}
@@ -84,7 +94,7 @@ export class Generator {
 				lines[lines.length - 1] + word
 			).width;
 
-			if (newWidth <= options.width - options.padding * 2)
+			if (newWidth <= this.options.width - this.options.padding * 2)
 				lines[lines.length - 1] += word + " ";
 			else lines.push(word + " ");
 
@@ -97,7 +107,7 @@ export class Generator {
 	mark(markings: Marking[]) {
 		markings.forEach((marking) => {
 			const position = this.findPosition(marking.start, marking.end);
-			this.context.font = `${options.noteFontSize}px ${options.noteFont}`;
+			this.context.font = `${this.options.noteFontSize}px ${this.options.noteFont}`;
 
 			if (marking.to) {
 				const toPosition = this.findPosition(marking.to);
@@ -106,8 +116,8 @@ export class Generator {
 				this.context.strokeStyle =
 					(marking.type === "nw" || marking.type === "ovw") &&
 					!marking.hoofdfunctie
-						? options.themes[options.theme][marking.naamval]
-						: options.themes[options.theme].benoeming;
+						? this.options.themes[this.options.theme][marking.naamval]
+						: this.options.themes[this.options.theme].benoeming;
 				this.context.setLineDash([]);
 
 				const startX = position.x + position.width / 2;
@@ -125,8 +135,8 @@ export class Generator {
 				} else {
 					const lineBreakX1 =
 						position.line > toPosition.line
-							? options.padding
-							: options.width - options.padding;
+							? this.options.padding
+							: this.options.width - this.options.padding;
 					const lineBreakY1 = position.y + 25;
 					const controlX1 =
 						position.line > toPosition.line ? startX - 20 : startX + 20;
@@ -142,8 +152,8 @@ export class Generator {
 
 					const lineBreakX2 =
 						position.line > toPosition.line
-							? options.width - options.padding
-							: options.padding;
+							? this.options.width - this.options.padding
+							: this.options.padding;
 					const lineBreakY2 = toPosition.y + 25;
 					const controlX2 =
 						position.line > toPosition.line ? endX + 20 : endX - 20;
@@ -162,12 +172,13 @@ export class Generator {
 
 			this.context.beginPath();
 			if (marking.type === "zin") {
-				this.context.fillStyle = options.themes[options.theme].benoeming;
+				this.context.fillStyle =
+					this.options.themes[this.options.theme].benoeming;
 
 				if (marking.streep) {
 					const x = position.x - 2;
 					const y = position.y + 5;
-					const height = -options.fontSize - 15;
+					const height = -this.options.fontSize - 15;
 
 					this.context.roundRect(x, y, 2, height, 1);
 					if (marking.streep === "dubbel")
@@ -181,20 +192,21 @@ export class Generator {
 						this.context.fillText(
 							marking.nummer.toString(),
 							position.x + 12,
-							position.y - options.fontSize - 20
+							position.y - this.options.fontSize - 20
 						);
 
-					this.context.font = `16px ${options.noteFont}`;
+					this.context.font = `16px ${this.options.noteFont}`;
 					this.context.fillText(
 						marking.zin,
 						position.x + 2,
-						position.y - options.fontSize - 20
+						position.y - this.options.fontSize - 20
 					);
 				}
 			}
 
 			if (marking.type === "constructie") {
-				this.context.strokeStyle = options.themes[options.theme].benoeming;
+				this.context.strokeStyle =
+					this.options.themes[this.options.theme].benoeming;
 
 				this.context.beginPath();
 				this.context.setLineDash([]);
@@ -209,7 +221,7 @@ export class Generator {
 				}
 
 				const startY = position.y + 5;
-				const endY = position.y + 5 - options.fontSize - 15;
+				const endY = position.y + 5 - this.options.fontSize - 15;
 				const middleY = (startY + endY) / 2;
 
 				if (marking.constructie === "aci") {
@@ -229,13 +241,14 @@ export class Generator {
 				marking.type === "nw" ||
 				(marking.type === "ovw" && marking.naamval)
 			) {
-				this.context.fillStyle = options.themes[options.theme][marking.naamval];
+				this.context.fillStyle =
+					this.options.themes[this.options.theme][marking.naamval];
 				if (marking.hoofdfunctie) {
 					this.context.roundRect(
-						position.x - options.highlightPadding,
+						position.x - this.options.highlightPadding,
 						position.y + 2,
-						position.width + options.highlightPadding * 2,
-						-options.fontSize,
+						position.width + this.options.highlightPadding * 2,
+						-this.options.fontSize,
 						2
 					);
 					this.context.fill();
@@ -244,38 +257,44 @@ export class Generator {
 				}
 
 				if (marking.participium) {
-					this.context.fillStyle = options.themes[options.theme].benoeming;
+					this.context.fillStyle =
+						this.options.themes[this.options.theme].benoeming;
 					this.drawer.drawUnderline(marking, true, 2);
 				}
 			}
 
 			if (marking.type === "ww") {
 				if (marking.onderwerp) {
-					this.context.fillStyle = options.themes[options.theme].nom;
+					this.context.fillStyle = this.options.themes[this.options.theme].nom;
 					const markWidth = Math.max(position.width * 0.3, 13);
 					this.context.roundRect(
-						position.x + position.width - markWidth - options.highlightPadding,
+						position.x +
+							position.width -
+							markWidth -
+							this.options.highlightPadding,
 						position.y + 2,
-						markWidth + options.highlightPadding * 2,
-						-options.fontSize,
+						markWidth + this.options.highlightPadding * 2,
+						-this.options.fontSize,
 						2
 					);
 					this.context.fill();
 				}
 
-				this.context.fillStyle = options.themes[options.theme].benoeming;
+				this.context.fillStyle =
+					this.options.themes[this.options.theme].benoeming;
 				this.drawer.drawUnderline(marking, !marking.persoonsvorm);
 			}
 
 			if (marking.type === "ovw") {
-				this.context.strokeStyle = options.themes[options.theme].benoeming;
+				this.context.strokeStyle =
+					this.options.themes[this.options.theme].benoeming;
 				this.context.setLineDash([]);
 				this.context.beginPath();
 				this.context.roundRect(
 					position.x,
 					position.y + 2,
 					position.width + 1,
-					-options.fontSize,
+					-this.options.fontSize,
 					6
 				);
 				this.context.stroke();
@@ -286,7 +305,7 @@ export class Generator {
 	}
 
 	findPosition(start: number, end?: number): Position {
-		this.context.font = `${options.fontSize}px ${options.font}`;
+		this.context.font = `${this.options.fontSize}px ${this.options.font}`;
 
 		const lineWords = this.lines.map((line) =>
 			line.split(" ").filter((l) => l !== "")
@@ -299,13 +318,15 @@ export class Generator {
 		);
 
 		const x =
-			options.padding +
+			this.options.padding +
 			(wordPosition === 0
 				? 0
 				: this.context.measureText(
 						lineWords[linePosition].slice(0, wordPosition).join(" ") + " "
 				  ).width);
-		const y = (options.fontSize + options.linePadding) * (linePosition + 1) + 1;
+		const y =
+			(this.options.fontSize + this.options.linePadding) * (linePosition + 1) +
+			1;
 		const width = this.context.measureText(
 			lineWords[linePosition]
 				.slice(

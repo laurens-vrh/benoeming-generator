@@ -1,6 +1,5 @@
 import { CanvasRenderingContext2D } from "canvas";
 import { Generator, Marking, Position } from "./Generator.js";
-import { options } from "../options.js";
 
 export class Drawer {
 	generator: Generator;
@@ -13,14 +12,16 @@ export class Drawer {
 
 	drawText(lines: string[]) {
 		this.context.textAlign = "left";
-		this.context.font = `${options.fontSize}px ${options.font}`;
-		this.context.fillStyle = options.themes[options.theme].text;
+		this.context.font = `${this.generator.options.fontSize}px ${this.generator.options.font}`;
+		this.context.fillStyle =
+			this.generator.options.themes[this.generator.options.theme].text;
 
 		lines.forEach((line, i) =>
 			this.context.fillText(
 				line,
-				options.padding,
-				(options.fontSize + options.linePadding) * (i + 1)
+				this.generator.options.padding,
+				(this.generator.options.fontSize + this.generator.options.linePadding) *
+					(i + 1)
 			)
 		);
 	}
@@ -60,16 +61,19 @@ export class Drawer {
 	}
 
 	drawNotes(position: Position, marking: Marking) {
-		this.context.font = `${options.noteFontSize}px ${options.noteFont}`;
+		this.context.font = `${this.generator.options.noteFontSize}px ${this.generator.options.noteFont}`;
 		this.context.textAlign = "center";
-		this.context.fillStyle = options.themes[options.theme].benoeming;
+		this.context.fillStyle =
+			this.generator.options.themes[this.generator.options.theme].benoeming;
 
 		if (marking.topNote)
 			marking.topNote.reverse().forEach((line, i) => {
 				this.context.fillText(
 					line,
 					position.x + position.width / 2,
-					position.y - options.fontSize - options.noteFontSize * i
+					position.y -
+						this.generator.options.fontSize -
+						this.generator.options.noteFontSize * i
 				);
 			});
 
@@ -78,7 +82,7 @@ export class Drawer {
 				this.context.fillText(
 					line,
 					position.x + position.width / 2,
-					position.y + 13 + options.noteFontSize * i
+					position.y + 13 + this.generator.options.noteFontSize * i
 				);
 			});
 	}
