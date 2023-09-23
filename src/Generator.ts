@@ -280,7 +280,7 @@ export class Generator {
 						: wordPosition) + 1
 				)
 				.join(" ")
-				.replace(/[.,;:]/g, "")
+				.replace(/[.,;:\?!'"]/g, "")
 		).width;
 
 		return {
