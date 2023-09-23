@@ -2,7 +2,7 @@ export interface Options {
 	width: number;
 	padding: number;
 	linePadding: number;
-	highlightPadding: 2;
+	highlightPadding: number;
 
 	font: string;
 	fontSize: number;
@@ -27,15 +27,14 @@ export interface Options {
 
 export const defaultOptions: Options = {
 	width: 700,
+	padding: 10,
+	linePadding: 75,
+	highlightPadding: 2,
 
 	font: "Times New Roman",
 	fontSize: 20,
 	noteFont: "Arial",
 	noteFontSize: 12,
-
-	padding: 10,
-	linePadding: 75,
-	highlightPadding: 2,
 
 	theme: "default" as "default" | "pastel",
 	themes: {
