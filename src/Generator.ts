@@ -111,63 +111,7 @@ export class Generator {
 
 			if (marking.to) {
 				const toPosition = this.findPosition(marking.to);
-
-				this.context.beginPath();
-				this.context.strokeStyle =
-					(marking.type === "nw" || marking.type === "ovw") &&
-					!marking.hoofdfunctie
-						? this.options.themes[this.options.theme][marking.naamval]
-						: this.options.themes[this.options.theme].benoeming;
-				this.context.setLineDash([]);
-
-				const startX = position.x + position.width / 2;
-				const startY = position.y + 2;
-				const endX = toPosition.x + toPosition.width / 2;
-				const endY = toPosition.y + 4;
-
-				if (position.line === toPosition.line) {
-					const controlX = (startX + endX) / 2;
-					const controlY = position.y + 20;
-
-					this.context.moveTo(startX, startY);
-					this.context.quadraticCurveTo(controlX, controlY, endX, endY);
-					this.context.stroke();
-				} else {
-					const lineBreakX1 =
-						position.line > toPosition.line
-							? this.options.padding
-							: this.options.width - this.options.padding;
-					const lineBreakY1 = position.y + 25;
-					const controlX1 =
-						position.line > toPosition.line ? startX - 20 : startX + 20;
-
-					this.context.moveTo(startX, startY);
-					this.context.quadraticCurveTo(
-						controlX1,
-						lineBreakY1,
-						lineBreakX1,
-						lineBreakY1
-					);
-					this.context.stroke();
-
-					const lineBreakX2 =
-						position.line > toPosition.line
-							? this.options.width - this.options.padding
-							: this.options.padding;
-					const lineBreakY2 = toPosition.y + 25;
-					const controlX2 =
-						position.line > toPosition.line ? endX + 20 : endX - 20;
-
-					this.context.beginPath();
-					this.context.moveTo(endX, endY);
-					this.context.quadraticCurveTo(
-						controlX2,
-						lineBreakY2,
-						lineBreakX2,
-						lineBreakY2
-					);
-					this.context.stroke();
-				}
+				this.drawer.drawCurve(marking, position, toPosition);
 			}
 
 			this.context.beginPath();
@@ -191,7 +135,7 @@ export class Generator {
 					if (marking.nummer)
 						this.context.fillText(
 							marking.nummer.toString(),
-							position.x + 12,
+							position.x + 13,
 							position.y - this.options.fontSize - 20
 						);
 
@@ -305,8 +249,6 @@ export class Generator {
 	}
 
 	findPosition(start: number, end?: number): Position {
-		this.context.font = `${this.options.fontSize}px ${this.options.font}`;
-
 		const lineWords = this.lines.map((line) =>
 			line.split(" ").filter((l) => l !== "")
 		);
@@ -316,7 +258,9 @@ export class Generator {
 			lineWords,
 			start
 		);
+		const endPosition = this.findPartialPosition(lineWords, end ?? start);
 
+		this.context.font = `${this.options.fontSize}px ${this.options.font}`;
 		const x =
 			this.options.padding +
 			(wordPosition === 0
@@ -331,12 +275,12 @@ export class Generator {
 			lineWords[linePosition]
 				.slice(
 					wordPosition,
-					(end
-						? this.findPartialPosition(lineWords, end).wordPosition
+					(linePosition === endPosition.linePosition
+						? endPosition.wordPosition
 						: wordPosition) + 1
 				)
 				.join(" ")
-				.replace(/[.;,]/g, "")
+				.replace(/[.,;:]/g, "")
 		).width;
 
 		return {

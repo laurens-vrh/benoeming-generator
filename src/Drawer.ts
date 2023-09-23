@@ -86,4 +86,72 @@ export class Drawer {
 				);
 			});
 	}
+
+	drawCurve(marking: Marking, position: Position, toPosition: Position) {
+		const toRight = marking.start < (marking.to ?? 0);
+
+		this.context.beginPath();
+		this.context.strokeStyle =
+			(marking.type === "nw" || marking.type === "ovw") && !marking.hoofdfunctie
+				? this.generator.options.themes[this.generator.options.theme][
+						marking.naamval
+				  ]
+				: this.generator.options.themes[this.generator.options.theme].benoeming;
+		this.context.setLineDash([]);
+
+		const startX =
+			position.width > 30
+				? toRight
+					? position.x + position.width - 20
+					: position.x + 20
+				: position.x + position.width / 2;
+		const startY = position.y + 2;
+		const endX =
+			toPosition.width > 30
+				? toRight
+					? toPosition.x + 10
+					: toPosition.x + toPosition.width - 10
+				: toPosition.x + toPosition.width / 2;
+		const endY = toPosition.y + 4;
+
+		if (position.line === toPosition.line) {
+			const controlX = (startX + endX) / 2;
+			const controlY = position.y + 20;
+
+			this.context.moveTo(startX, startY);
+			this.context.quadraticCurveTo(controlX, controlY, endX, endY);
+			this.context.stroke();
+		} else {
+			const lineBreakX1 = toRight
+				? position.x + position.width + 10
+				: position.x - 10;
+			const lineBreakY1 = position.y + 15;
+			const controlX1 = (startX + lineBreakX1) / 2;
+
+			this.context.moveTo(startX, startY);
+			this.context.quadraticCurveTo(
+				controlX1,
+				lineBreakY1,
+				lineBreakX1,
+				lineBreakY1
+			);
+			this.context.stroke();
+
+			const lineBreakX2 = toRight
+				? toPosition.x - 10
+				: toPosition.x + toPosition.width + 10;
+			const lineBreakY2 = toPosition.y + 15;
+			const controlX2 = (endX + lineBreakX2) / 2;
+
+			this.context.beginPath();
+			this.context.moveTo(endX, endY);
+			this.context.quadraticCurveTo(
+				controlX2,
+				lineBreakY2,
+				lineBreakX2,
+				lineBreakY2
+			);
+			this.context.stroke();
+		}
+	}
 }
