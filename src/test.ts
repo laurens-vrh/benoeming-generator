@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import { Parser } from "../src/Parser.js";
 import { Generator } from "../src/Generator.js";
-import { Canvas } from "canvas";
+import { Canvas, createCanvas } from "canvas";
 
 const files = fs
 	.readdirSync("./files/")
@@ -13,7 +13,12 @@ files.forEach(async (fileName) => {
 	const parser = new Parser(fileName, file);
 	const { text, markings } = parser.parse();
 
-	const generator = new Generator(text, markings, {});
+	const generator = new Generator(
+		text,
+		markings,
+		createCanvas(1, 1, "pdf"),
+		{}
+	);
 	const image = generator.generate() as Canvas;
 
 	const buffer = image.toBuffer("application/pdf");

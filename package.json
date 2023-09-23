@@ -1,6 +1,6 @@
 {
 	"name": "dicam-generator",
-	"version": "1.0.3",
+	"version": "1.0.5",
 	"author": "laurens.vrh",
 	"main": "dist/src/index.js",
 	"type": "module",
@@ -10,10 +10,9 @@
 		"build:watch": "tsc --watch",
 		"dev": "nodemon -e js,json,dicam ./dist/src/test.js"
 	},
-	"dependencies": {
-		"canvas": "^2.11.2"
-	},
+	"dependencies": {},
 	"devDependencies": {
+		"canvas": "^2.11.2",
 		"@types/node": "^20.6.2",
 		"typescript": "^5.2.2"
 	}

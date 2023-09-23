@@ -1,4 +1,4 @@
-import { Canvas, CanvasRenderingContext2D, createCanvas } from "canvas";
+import { Canvas, CanvasRenderingContext2D } from "canvas";
 import { Options, defaultOptions } from "../options.js";
 import { Drawer } from "./Drawer.js";
 
@@ -53,11 +53,11 @@ export class Generator {
 	constructor(
 		text: string,
 		markings: Marking[],
-		options?: Partial<Options>,
-		canvas?: Canvas | HTMLCanvasElement
+		canvas: Canvas | HTMLCanvasElement,
+		options?: Partial<Options>
 	) {
 		this.options = { ...defaultOptions, ...options };
-		this.canvas = canvas ?? createCanvas(this.options.width, 1, "pdf");
+		this.canvas = canvas;
 		this.canvas.width = this.options.width;
 		this.context = this.canvas.getContext("2d") as CanvasRenderingContext2D;
 
